@@ -1,0 +1,102 @@
+create table spring_jdbc.auth_user
+(
+    id       serial primary key,
+    name     varchar,
+    age      int,
+    gender   varchar,
+    email    varchar unique not null,
+    password varchar        not null
+);
+create table spring_jdbc.product
+(
+    id               serial primary key,
+    name             varchar,
+    description      text,
+    produced_country varchar,
+    price            bigint,
+    created_at       timestamp default current_timestamp,
+
+    creator_id       int,
+    foreign key (creator_id) references spring_jdbc.auth_user (id) on delete set null
+);
+
+create table spring_jdbc.auth_role
+(
+    id   serial primary key,
+    name varchar,
+    code varchar unique not null
+);
+
+create table spring_jdbc.auth_permission
+(
+    id   serial primary key,
+    name varchar,
+    code varchar unique not null
+);
+
+create table spring_jdbc.user_role
+(
+    user_id int references spring_jdbc.auth_user (id) on delete cascade,
+    role_id int references spring_jdbc.auth_role (id)
+);
+
+create table spring_jdbc.role_permission
+(
+    role_id       int references spring_jdbc.auth_role (id),
+    permission_id int references spring_jdbc.auth_permission (id)
+);
+create table spring_jdbc.product_image
+(
+    product_id    int references spring_jdbc.product (id) on delete cascade,
+    attachment_id int references spring_jdbc.attachment (id) on delete cascade
+);
+
+create table spring_jdbc.attachment
+(
+    id             serial primary key,
+    original_name  varchar,
+    generated_name varchar,
+    content_type   varchar,
+    size           bigint
+);
+
+create table spring_jdbc.auth_user_status
+(
+    user_id           int references spring_jdbc.auth_user (id),
+    confirmation_code varchar unique not null
+);
+
+--inserting queries--
+
+insert into spring_jdbc.auth_role(name, code)
+values ('User role', 'USER'),
+       ('Admin role', 'ADMIN'),
+       ('Super Admin role', 'SUPER_ADMIN'),
+       ('Manager role', 'MANAGER');
+
+insert into spring_jdbc.auth_permission(name, code)
+values ('', 'READ_ME'),
+
+       ('', 'CREATE_USER'),
+       ('', 'READ_USER'),
+       ('', 'UPDATE_USER'),
+       ('', 'DELETE_USER'),
+
+       ('', 'CREATE_ADMIN'),
+       ('', 'READ_ADMIN'),
+       ('', 'UPDATE_ADMIN'),
+       ('', 'DELETE_ADMIN'),
+
+       ('', 'CREATE_MANAGER'),
+       ('', 'READ_MANAGER'),
+       ('', 'UPDATE_MANAGER'),
+       ('', 'DELETE_MANAGER'),
+
+       ('', 'DOWNLOAD_USERS_EXCEL'),
+       ('', 'DOWNLOAD_ADMINS_EXCEL'),
+       ('', 'DOWNLOAD_MANAGERS_EXCEL'),
+
+       ('', 'CREATE_PRODUCT'),
+       ('', 'READ_PRODUCT'),
+       ('', 'UPDATE_PRODUCT'),
+       ('', 'DELETE_PRODUCT');
