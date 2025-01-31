@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Admins</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark" style="padding-left: 28px">
+    <a class="navbar-brand" href="/admin/home">Admin Panel</a>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar min-vh-100">
+            <div class="sidebar-sticky">
+                <ul class="nav flex-column">
+                    <br>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/admin/home">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/admin/view/users">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasAuthority('READ_ADMIN')">
+                        <a class="nav-link text-white" href="/admin/view/admins">
+                            <i class="fas fa-user-shield"></i> Admins
+                        </a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasAuthority('READ_MANAGER')">
+                        <a class="nav-link text-white" href="/admin/view/managers">
+                            <i class="fas fa-user-tie"></i> Managers
+                        </a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasAuthority('READ_PRODUCT')">
+                        <a class="nav-link text-white" href="/admin/view/products">
+                            <i class="fas fa-shopping-cart"></i> Products
+                        </a>
+                    </li>
+                    <br>
+                    <li class="nav-item">
+                        <a type="button" data-bs-toggle="modal" data-bs-target="#logoutModal"
+                           class="nav-link text-white">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                        <!-- Modal -->
+                        <div class="modal fade" id="logoutModal" data-bs-backdrop="static"
+                             tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5 fw-bolder" id="staticBackdropLabel">Logout</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="fs-5">Are you sure ?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form method="post" action="/auth/logout">
+                                            <button type="submit" class="btn btn-primary">Yes</button>
+                                        </form>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End of Modal-->
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <h1 class="mt-4">Admin List</h1>
+            <div class="row">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Age</th>
+                        <th scope="col">Gender</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="admin : ${admins}">
+                        <td th:text="${admin.getId()}"></td>
+                        <td th:text="${admin.getName()}"></td>
+                        <td th:text="${admin.getAge()}"></td>
+                        <td th:text="${admin.getGender()}"></td>
+                        <td th:text="${admin.getEmail()}"></td>
+                        <td th:text="${admin.getRoles().getFirst().getCode()}"></td>
+
+                        <td sec:authorize="hasAuthority('DELETE_ADMIN')">
+                            <button type="button" data-bs-toggle="modal"
+                                    th:data-bs-target="'#deleteModal'+${admin.getId()}"
+                                    class="btn btn-danger">Delete
+                            </button>
+                            <!-- Modal -->
+                            <div class="modal fade" th:id="'deleteModal'+${admin.getId()}" data-bs-backdrop="static"
+                                 tabindex="-1" aria-labelledby="label2" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="label2">Deleting</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Do you want to delete <b th:text="${admin.getName()}"></b> ?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <form method="post" action="/admin/delete/user">
+                                                <input type="hidden" name="deleteUserId" th:value="${admin.getId()}">
+                                                <button type="submit" class="btn btn-primary">Yes</button>
+                                            </form>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                Close
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End of Modal-->
+                        </td>
+                        <td sec:authorize="hasAuthority('UPDATE_ADMIN')">
+                            <button
+                                    data-bs-toggle="modal"
+                                    th:data-bs-target="'#updateUserModal'+${admin.getId()}"
+                                    class="btn btn-warning">Update
+                            </button>
+                            <!--   Modal   -->
+                            <div class="modal fade" th:id="'updateUserModal'+${admin.getId()}" tabindex="-1" aria-labelledby="updateUserModalLabel"
+                                 aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form action="/admin/update/user" method="post">
+                                            <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="updateUserModalLabel">Update admin details</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <input type="hidden" name="userId" th:value="${admin.getId()}">
+                                                <div class="mb-2">
+                                                    <label for="newName" class="col-form-label fw-bolder">Name:</label>
+                                                    <input type="text" class="form-control" id="newName" name="name" th:placeholder="${admin.getName()}">
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label for="newAge" class="col-form-label fw-bold">Age:</label>
+                                                    <input type="number" class="form-control" id="newAge" name="age" th:placeholder="${admin.getAge()}">
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label for="newGender" class="form-label fw-bolder">Gender</label>
+                                                    <select class="form-select form-select-sm" name="gender" id="newGender" th:placeholder="${admin.getGender()}">
+                                                        <option value="Male">Male</option>
+                                                        <option value="Female">Female</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label for="newPassword" class="col-form-label fw-bolder">New password:</label>
+                                                    <input type="password" class="form-control" id="newPassword" name="password" placeholder="must be length > 5">
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <input type="hidden" name="redirectPath" value="redirect:/admin/view/admins">
+                                                <button type="submit" class="btn btn-primary">Update</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--   End of Modal   -->
+                        </td>
+
+                        <td sec:authorize="hasAuthority('UPDATE_ADMIN')">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                    th:data-bs-target="'#changeRoleModal'+${admin.getId()}">Change Role
+                            </button>
+
+                            <!--   Modal   -->
+                            <div class="modal fade" th:id="'changeRoleModal'+${admin.getId()}" tabindex="-1"
+                                 th:aria-labelledby="exampleModalLabel"
+                                 aria-hidden="true">
+                                <form action="/admin/change/role" method="post">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Change Role for <b
+                                                        th:text="${admin.getName()}"></b></h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="recipient-name"
+                                                           class="col-form-label">Role Code:</label>
+                                                    <select class="form-select form-select-sm" name="roleCode"
+                                                            id="recipient-name">
+                                                        <option value="USER">USER</option>
+                                                        <option value="ADMIN">ADMIN</option>
+                                                        <option value="MANAGER">MANAGER</option>
+                                                        <option sec:authorize="hasRole('SUPER_ADMIN')" value="SUPER_ADMIN">SUPER_ADMIN</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <input type="hidden" name="userId" th:value="${admin.getId()}">
+                                                <input type="hidden" name="redirectPath" value="redirect:/admin/view/admins">
+                                                <button type="submit" class="btn btn-primary">Save Changes</button>
+
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                    Close
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <!--   End of Modal -->
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
